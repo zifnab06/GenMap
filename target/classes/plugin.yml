@@ -4,7 +4,7 @@ description: Generates a map
 author: zifnab06
 
 
-main: net.zifnab06.Genmap.GenMap
+main: net.zifnab06.GenMap.GenMap
 database: false
 
 commands:
@@ -12,6 +12,10 @@ commands:
     description: Generate Map.
     permission: genmap.genmap
     usage: /generate world radius (3000 = 6000x6000 square world)
+  generate-status:
+    description: Shows status
+    premisssion: genmap.genmap
+    usage: /generate-status
 permissions:
   genmap.genmap:
     description: Allows map generation.

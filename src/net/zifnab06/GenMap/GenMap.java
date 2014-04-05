@@ -28,6 +28,7 @@ public class GenMap extends JavaPlugin {
 
     public int radius = 0;
     public ArrayList<ChunkCoordinate> ListOfChunks = new ArrayList<>();
+    BukkitTask [] tasks = new BukkitTask[2];
 
     @Override
     public void onEnable() {
@@ -51,15 +52,20 @@ public class GenMap extends JavaPlugin {
                         ListOfChunks.add(new ChunkCoordinate(i, j));
                     }
                 }
-                for (int i = 0; i < 2; i++) {
-                    BukkitTask task = getServer().getScheduler().runTask(this, new BukkitRunnable() {
+                for (int i = 0; i < tasks.length; i++) {
+                    tasks[i] = getServer().getScheduler().runTask(this, new BukkitRunnable() {
                         @Override
                         public void run() {
+                            Runtime runtime = Runtime.getRuntime();
+
                             while (ListOfChunks.size() != 0) {
                                 ChunkCoordinate coord = ListOfChunks.get(0);
                                 ListOfChunks.remove(0);
-                                world.loadChunk((int)coord.x, (int)coord.z);
-                                world.unloadChunk((int)coord.x, (int)coord.z);
+                                world.loadChunk((int)coord.x, (int)coord.z, true);
+                                world.unloadChunk((int)coord.x, (int)coord.z, true, true);
+				if ((runtime.freeMemory() / 1048576L)  < 512L) {
+					System.gc();
+				}
                             }
                         }
                     });
@@ -67,8 +73,13 @@ public class GenMap extends JavaPlugin {
 
             }
         } else if (name.equalsIgnoreCase("generate-status")){
-            sender.sendMessage(String.format("Remaining chunks: %i", ListOfChunks.size()));
-        }
+            sender.sendMessage(String.format("Remaining chunks: %d", ListOfChunks.size()));
+        } else if (name.equalsIgnoreCase("generate-stop")){
+            for(BukkitTask task : tasks){
+            	task.cancel();
+            }
+
+	}
 
         return true;
     }
